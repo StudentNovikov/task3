@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>Task3-Novikov</title>
+</head>
+
+<body>
+    <div class="container">
+        <h3 class=" my-3 text-secondary">Result:</h3>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Color</th>
+                    <th scope="col">Traffic</th>
+                    <th scope="col">Rarity</th>
+                    <th scope="col">%</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Fetched data goes here -->
+            </tbody>
+        </table>
+        <h3 class=" my-3 text-dark">Total Traffic: <span id="totalTraffic"></span></h3>
+    </div>
+
+    <script>
+        const tableBody = document.querySelector('tbody');
+        const trafficSpan = document.getElementById('totalTraffic');
+        //Fetching data from server
+
+        fetch('/array').then(res => res.json())
+            .then(myJson => {
+                //Counting total traffic  
+                let totalTraffic = 0;
+                myJson.forEach(element => {
+                    totalTraffic += element.traffic;
+                });
+                console.log(`1.total Traffic: ${totalTraffic}`);
+                trafficSpan.innerText = totalTraffic;
+
+                //Adding percentage to each element
+                let arrayWithTrafficPercentage = myJson.map(element => {
+                    element.trafficPercent = Math.round(element.traffic / totalTraffic * 100) / 1;
+                    return element;
+                });
+                console.log('2.New collection:');
+                console.log(arrayWithTrafficPercentage);
+
+                //Creating a new collection with more than 2% of traffic 
+                let filteredCollection = arrayWithTrafficPercentage.filter(element => element.trafficPercent > 2);
+                console.log('3. Filtered collection:');
+                console.log(filteredCollection);
+
+                //Calling a method to display result collection
+                displayTable(filteredCollection);
+            })
+            .catch(error => console.error(error));
+
+        displayTable = (array) => {
+            array.forEach(element => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<th scope="row">${element.id}</th>
+                                    <td>${element.color}</td>
+                                    <td>${element.traffic}</td>
+                                    <td>${element.rarity}</td>
+                                    <td>${element.trafficPercent}</td>`;
+                tableBody.appendChild(tr);
+            })
+        }
+    </script>
+</body>
+
+</html>
